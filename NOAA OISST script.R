@@ -22,7 +22,7 @@ oisst2_data <- fromJSON(json_path, flatten = FALSE) %>%
 
 # Pivot to long format, select relevant variables
 oisst2_long <- oisst2_data %>%
-  filter(name %in% c("1982-2011 mean", "plus 2σ", "minus 2σ", "2023")) %>%
+  filter(name %in% c("1982-2011 mean", "plus 2σ", "minus 2σ", "2023", "2022", "2021")) %>%
   pivot_longer(-name, names_to = "day", values_to = "temp C") %>%
   mutate(day = factor(day, levels = c(paste("Day", 1:366))))
 
@@ -30,7 +30,7 @@ oisst2_long <- oisst2_data %>%
 # Pivot to wide format, select relevant variables 
 oisst2_wide <- setNames(data.frame(t(oisst2_data[, -1])), oisst2_data[, 1]) %>%
   rownames_to_column(var = "day") %>%
-  select(day, `1982-2011 mean`, `plus 2σ`, `minus 2σ`, `2023`) %>%
+  select(day, `1982-2011 mean`, `plus 2σ`, `minus 2σ`, `2023`, `2022`) %>%
   mutate(anomaly = `2023`-`1982-2011 mean`) %>%
   mutate(max_anomoly = ifelse(anomaly == max(anomaly), `2023`, NA))
 
@@ -56,15 +56,15 @@ oisst2_long %>%
   ggplot(aes(x = day, y = `temp C`, group = name, color = name)) +
   # Create the mean + sigma ribbon
   geom_ribbon(aes(
-    ymin = rep(`minus 2σ`, 4),
-    ymax = rep(`plus 2σ`, 4)),
+    ymin = rep(`minus 2σ`, 6),
+    ymax = rep(`plus 2σ`, 6)),
     fill = "#dfe6e3",
     show.legend = FALSE) +
   # Add lines for the historic mean, current year, and 2x sigmas
-  geom_line(linetype = ifelse(oisst2_long$name == "1982-2011 mean", "solid", "dashed"),
-            size = 1) +
+  # geom_line(linetype = ifelse(oisst2_long$name == "1982-2011 mean", "solid", "dashed"), size = 1) +
+  geom_line(linewidth = 1) +
   # Color the lines
-  scale_color_manual(values = c("#43464a", "#146edb", "#dfe6e3", "#dfe6e3")) +
+  scale_color_manual(values = c("#43464a", "#8bc48b", "#4ca889", "#146edb", "#dfe6e3", "#dfe6e3")) +
   # Adjust the x-axis to show every 14 days
   scale_x_discrete(breaks = oisst2_wide$day[seq(1, length(oisst2_wide$day), by = 14)],
                    guide = guide_axis(angle = 90)) +
