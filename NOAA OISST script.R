@@ -69,7 +69,7 @@ max <- oisst2_anomaly %>%
 DayBreak <- factor(paste("Day", 1:366)[seq(1, 366, by = 14)], levels = c(paste("Day", 1:366)))
 
 # Plot in ggplot2
-oisst2_long %>%
+SST_Plot <- oisst2_long %>%
   ggplot(aes(x = day, y = `temp C`, group = name, color = name)) +
   # Create the mean + sigma ribbon
   geom_ribbon(aes(
@@ -88,15 +88,15 @@ oisst2_long %>%
   # Create a label for the current anomaly 
   annotate(geom = "text", x = current$day, y = current$`temp C`, 
            label = paste0("current anomaly\nis ", round(current$anomaly, digits = 2), "°C"),
-           size = 3, vjust = -0.9, color = "#146edb") +
+           size = 3, vjust = -0.9, color = "#eb4034") +
   annotate(geom = "point", x = current$day, y = current$`temp C`, 
-           size = 6, shape = 21, fill = "transparent", color = "#146edb") +
+           size = 3, shape = 21, fill = "transparent", color = "#eb4034") +
   # Create a label for the maximum anomaly during the current year
   annotate(geom = "text", x = max$day, y = max$`temp C`, 
            label = paste0("max anomaly\nwas ", round(max$anomaly, digits = 2), "°C"),
-           size = 3, vjust = -0.9, color = "#146edb") +
+           size = 3, vjust = -0.9, color = "#eb4034") +
   annotate(geom = "point", x = max$day, y = max$`temp C`, 
-           size = 6, shape = 21, fill = "transparent", color = "#146edb") +
+           size = 3, shape = 21, fill = "transparent", color = "#eb4034") +
   # Expand the y-axis limits to create room for the above annotations 
   ylim(c(min(sd_bands$`minus 2σ`)*.99, max(oisst2_long$`temp C`, na.rm = T)*1.01)) +
   # Adjust the labels of the graph
@@ -112,3 +112,7 @@ oisst2_long %>%
                                         colour = "#fafffd",
                                         linetype = "solid")) +
   coord_cartesian(clip = 'off')
+
+
+# Download plot
+ggsave(paste0("SST_", today()), SST_Plot, height = 6, width = 9, dpi = 320)
